@@ -14,7 +14,7 @@
   const int n3 = 256;                            
 //************************************MPI WRITE******************************************** 
 
-void mpiiowrite(char filename, int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
+void mpiiowrite(char filename, long int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
 {
     int ndim = 3; 
     int i,j,k; 
@@ -106,15 +106,16 @@ void mpiiowrite(char filename, int iodata[][257][257], int n1, int n2, int n3, M
                            
 //************************************SERIAL WRITE******************************************** 
 
-void serialwrite(char filename,  int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
+void serialwrite(char filename,  long int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
 {
         int rank, size; 
         int iounit = 10; 
         int i; 
+        printf("Writing to %s \n", filename); 
         if(rank == 0)
         {
             //void open(const char *filename, ios::openmode mode);
-            FILE* in_file = fopen("filename.dat", "a+"); // read only  
+            FILE* in_file = fopen(&filename, "w"); // read only  
          
              if (! in_file ) // equivalent to saying if ( in_file == NULL ) 
              {  

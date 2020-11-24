@@ -1,8 +1,9 @@
 #include <mpi.h>
+#define N 256
 double benchtick(int a);
 double benchtime(int a);
-void mpiiowrite(char filename, int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm); 
+void mpiiowrite(char filename, long int iodata[][N+1][N+1], int n1, int n2, int n3, MPI_Comm cartcomm); 
 //void serialwrite(std::string filename, int iodata[][4][4], int n1, int n2, int n3, int cartcomm); 
-void serialwrite(char filename, int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm); 
+void serialwrite(char filename, long iodata[][N+1][N+1], int n1, int n2, int n3, MPI_Comm cartcomm); 
 
 // #endif  // end BENCHCLOCK_HPP

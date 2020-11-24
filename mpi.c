@@ -2,16 +2,13 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
- 
 // void mpiio()
 // {
 // #ifdef WITH_MPIIO // does that have to be in function? can it be outside 
 // use mpi  
 // #endif 
 // }
-  const int n1 = 256;
-  const int n2 = 256;
-  const int n3 = 256;                            
+                       
 //************************************MPI WRITE******************************************** 
 
 void mpiiowrite(char filename, long int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
@@ -106,26 +103,20 @@ void mpiiowrite(char filename, long int iodata[][257][257], int n1, int n2, int 
                            
 //************************************SERIAL WRITE******************************************** 
 
-void serialwrite(char filename,  long int iodata[][257][257], int n1, int n2, int n3, MPI_Comm cartcomm)
+void serialwrite(char filename,  long int iodata[][257][257])
 {
-        int rank, size; 
-        int iounit = 10; 
-        int i; 
-        printf("Writing to %s \n", filename); 
-        if(rank == 0)
-        {
-            //void open(const char *filename, ios::openmode mode);
-            FILE* in_file = fopen(&filename, "w"); // read only  
-         
-             if (! in_file ) // equivalent to saying if ( in_file == NULL ) 
-             {  
+        int iounit = 10;  
+        int i, j, k; 
+        FILE* in_file; 
+        chdir("benchio_files");   
+        printf("change directory \n");   
+        in_file = fopen("serial.dat", "w"); // read only  
+        if (! in_file ) // equivalent to saying if ( in_file == NULL ) 
+            {  
                 printf("oops, file can't be read\n"); 
                 exit(-1); 
-             } 
-
-            //  for i,j,k
-            int i,j,k; 
-            for (i = 0; i<257; i++)
+            } 
+        for (i = 0; i<257; i++)
             {   
                 for (j = 0; j<257; j++)
                 {
@@ -134,11 +125,12 @@ void serialwrite(char filename,  long int iodata[][257][257], int n1, int n2, in
                         fprintf(in_file, "%d ", iodata[i][j][k]);
                     }
                 }
-            }           
+            } 
+
+        printf("File written \n");           
                  
 
-             fclose(in_file); 
+        fclose(in_file); 
 
-        }
 }
 

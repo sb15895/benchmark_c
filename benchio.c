@@ -2,6 +2,7 @@
 #include <mpi.h>
 #include <stdlib.h> 
 #include "benchclock.h"
+#include <string.h> 
 #define N 256 
 #define NDIM 3 
 
@@ -203,7 +204,7 @@ main(int argc, char **argv)
     
     // if (rank == 0) 
     // {
-    serialwrite(*filename, iodata, N1, N2, N3, cartcomm);
+    serialwrite(*filename, iodata);
     // } 
     printf("Serial write completed\n");
 //     switch(iolayer)
@@ -238,26 +239,22 @@ main(int argc, char **argv)
         maxiorate = iorate;
         mintime = time;
       }
-      printf("time = %d", time); printf(", rate = %d", iorate); printf(" MiB/s"); 
+      printf("time = %e, rate = %e MiB/s \n", time, iorate);  
     }
   // } 
   
   if (rank == 0) 
   {
-    printf("mintime = %d", mintime); printf(", maxrate = %d", maxiorate); printf(" MiB/s"); 
-    printf("avgtime = %d", avgtime); printf(", avgrate = %d", avgiorate); printf(" MiB/s"); 
-    printf("Deleting: %c", filename);
-    printf("\n"); 
-  }
-  
-  if (rank == 0)
-  {
+    printf("mintime = %e, maxrate = %e MiB/s \n", mintime, maxiorate); 
+    printf("avgtime = %e, avgiorate = %e MiB/s \n", avgtime, avgiorate); 
+    printf("Deleting: %s", filename);
     printf("\n"); 
     printf("--------");
     printf("Finished");
     printf("--------");    
     printf("\n");  
   }
+
 ierr = MPI_Finalize();
 return 0;
 

@@ -2,7 +2,8 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h>
-#include<string.h>
+#include <string.h>
+#include <memory.h>
 #define N 256 
 #define NDIM 3 
 
@@ -25,17 +26,21 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     int info = 0;      
     int order = 0; 
 
-    //means to initialise different dimesions with 0s till n1+1, etc
-    for (i = 0; i<n1+1; i++)
-    {  
-        for (j = 0; j<n2+1; j++)
-        {
-            for(k = 0; k<n3+1; k++)
-            { 
-                *(iodata + (int)(i*65536) + (int)(j*256) + k) = 0; 
-            }
-        }
-    }
+    //test for iodata 
+    i = 100; j = 100; k = 100; 
+    printf("Value of iodata[100][100][100] after passed to function %f \n", *(iodata + (int)(i*65536) + (int)(j*256) + k)); 
+
+    // //means to initialise different dimesions with 0s till n1+1, etc
+    // for (i = 0; i<n1+1; i++)
+    // {  
+    //     for (j = 0; j<n2+1; j++)
+    //     {
+    //         for(k = 0; k<n3+1; k++)
+    //         { 
+    //             *(iodata + (int)(i*65536) + (int)(j*256) + k) = 0; 
+    //         }
+    //     }
+    // }
 
     // printf("iodata filled \n"); 
 
@@ -78,14 +83,16 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     {   
         arraygsize[i] = arraysubsize[i] * dims[i]; 
         arraystart[i] = arraysubsize[i] * coords[i];    
-        printf("rank %d i %d arraygsize %d arraystart %d \n", myrank, i, arraygsize[i], arraystart[i]);
+        // printf("rank %d i %d arraygsize %d arraystart %d \n", myrank, i, arraygsize[i], arraystart[i]);
     }
 
     // MPI_Type_create_subarray creates an MPI dataype to extract data and write it to file. 
     MPI_Datatype mpi_subarray, filetype; 
+
     //define filetype for process: portion of global array that process owns.
     MPI_Type_create_subarray(ndim, arraygsize, arraysubsize, arraystart, MPI_ORDER_C, MPI_DOUBLE, &filetype); // order?     
     MPI_Type_commit(&filetype);
+    
     // printf("first subarray \n");     
     
     //define subarray for process: portion of local array thats to be written. 
@@ -98,7 +105,7 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     // printf("second subarray \n");     
 
     //write files to directory benchio_files
-    chdir("benchio_files"); 
+      chdir("benchio_files"); 
     // printf("Directory changed \n"); 
     
     // open file "mpiio.dat" using write only mode and create if the file doesnt exist.
@@ -108,8 +115,9 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     // set view using filetype data type and write file
     MPI_File_set_view(fh, 0, MPI_DOUBLE, filetype, "native", MPI_INFO_NULL);
     printf("MPI set view \n"); 
+
     //remove halo data by passing MPI subarray type
-    MPI_File_write_all(fh, iodata, 1, mpi_subarray, &status);
+    MPI_File_write_all (fh, iodata, 1, mpi_subarray, &status);
     printf("MPI file write all \n"); 
 
     MPI_File_close(&fh);  // close file 

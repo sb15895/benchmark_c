@@ -15,9 +15,7 @@ void serialwrite(double* iodata)
     N3 = 256;
     FILE* in_file; 
     chdir("benchio_files");   
-    printf("Directory changed \n");   
     in_file = fopen("serial.dat", "w"); // read only  
-    printf("File opened \n");
     if (! in_file ) // equivalent to saying if ( in_file == NULL ) 
     {  
         printf("oops, file can't be read\n"); 

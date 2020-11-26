@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <mpi.h>
 #include <stdlib.h> 
-#include "benchclock.h"
+#include "bench_headerfiles.h"
 #include <string.h> 
 #define N 256 
 #define NDIM 3 
@@ -139,7 +139,7 @@ main(int argc, char **argv)
 
   // iolayer for loop 
 
-  for (iolayer = 0; iolayer < 1; iolayer++)
+  for (iolayer = 1; iolayer < 2; iolayer++)
   {
     // { //  Skip layer if support is not compiled in
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
@@ -186,7 +186,6 @@ main(int argc, char **argv)
       if (rank == 0)
       { 
               t0 = benchtime(firstcall);   
-              printf("firstcall %f 0time %f \n", firstcall, t0); 
       }
 
       switch(iolayer)
@@ -227,8 +226,8 @@ main(int argc, char **argv)
           maxiorate = iorate;
           mintime = time;
         }
-        printf("time = %e, rate = %e MiB/s \n", time, iorate);  
-        // delete filename
+        printf("Time = %e, Rate = %e MiB/s \n", time, iorate);  
+        
       }
     }
   }
@@ -237,7 +236,12 @@ main(int argc, char **argv)
   {
     printf("mintime = %e, maxrate = %e MiB/s \n", mintime, maxiorate); 
     printf("avgtime = %e, avgiorate = %e MiB/s \n", avgtime, avgiorate); 
-    printf("Deleting: %s", filename);
+    printf("Deleting: %s \n", filename);
+    int del = remove(filename);
+    if (!del)
+      printf("The file is Deleted successfully \n");
+    else
+      printf("the file is not Deleted \n");
     printf("\n"); 
     printf("--------");
     printf("Finished");

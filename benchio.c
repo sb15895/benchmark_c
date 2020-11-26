@@ -139,7 +139,7 @@ main(int argc, char **argv)
 
   // iolayer for loop 
 
-  for (iolayer = 1; iolayer < 2; iolayer++)
+  for (iolayer = 0; iolayer < 2; iolayer++)
   {
     // { //  Skip layer if support is not compiled in
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF

@@ -141,7 +141,7 @@ main(int argc, char **argv)
 
   for (iolayer = 0; iolayer < 2; iolayer++)
   {
-    // { //  Skip layer if support is not compiled in
+    // { //  Skip layer if support is not compiled in 
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
     //   #ifndef WITH_SERIAL
       //    if (iolayer == 1) 

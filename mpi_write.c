@@ -30,26 +30,11 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     i = 100; j = 100; k = 100; 
     printf("Value of iodata[100][100][100] after passed to function %f \n", *(iodata + (int)(i*65536) + (int)(j*256) + k)); 
 
-    // //means to initialise different dimesions with 0s till n1+1, etc
-    // for (i = 0; i<n1+1; i++)
-    // {  
-    //     for (j = 0; j<n2+1; j++)
-    //     {
-    //         for(k = 0; k<n3+1; k++)
-    //         { 
-    //             *(iodata + (int)(i*65536) + (int)(j*256) + k) = 0; 
-    //         }
-    //     }
-    // }
-
-    // printf("iodata filled \n"); 
-
     // Dynamically allocate memory using malloc() 
     int* dims;
     int* coords; 
     dims = (int*)malloc(ndim * sizeof(int)); 
     coords = (int*)malloc(ndim * sizeof(int)); 
-
     // printf("malloc stuff \n"); 
   
     // Check if the memory has been successfully 
@@ -81,7 +66,7 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
 
     for (i = 0; i < ndim ; i++) // vector multiplication of arraysize+dims, arrayssubsize+coords
     {   
-        arraygsize[i] = arraysubsize[i] * dims[i]; 
+        arraygsize[i] = arraysubsize[i] * dims[i]; // arraygsize(:) = arraysubsize(:) * dims(:)
         arraystart[i] = arraysubsize[i] * coords[i];    
         // printf("rank %d i %d arraygsize %d arraystart %d \n", myrank, i, arraygsize[i], arraystart[i]);
     }
@@ -105,7 +90,7 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     // printf("second subarray \n");     
 
     //write files to directory benchio_files
-      chdir("benchio_files"); 
+    chdir("benchio_files"); 
     // printf("Directory changed \n"); 
     
     // open file "mpiio.dat" using write only mode and create if the file doesnt exist.
@@ -113,20 +98,21 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     printf("MPI file open \n"); 
 
     // set view using filetype data type and write file
-    MPI_File_set_view(fh, 0, MPI_DOUBLE, filetype, "native", MPI_INFO_NULL);
+    // MPI_File_set_view(fh , 0, MPI_DOUBLE, filetype, "native", MPI_INFO_NULL);
+    int err = 0; 
+    err = MPI_File_set_view( fh, MPI_DISPLACEMENT_CURRENT, MPI_DOUBLE, filetype, "native", MPI_INFO_NULL );
+
     printf("MPI set view \n"); 
 
     //remove halo data by passing MPI subarray type
-    MPI_File_write_all (fh, iodata, 1, mpi_subarray, &status);
+    // MPI_File_write_all (fh, iodata, 1, mpi_subarray, &status);
+    MPI_File_write_all (fh, iodata, 1, MPI_DOUBLE, &status);
     printf("MPI file write all \n"); 
 
     MPI_File_close(&fh);  // close file 
     printf("MPI close file \n"); 
-    
-    // MPI_Finalized(&finalized);
-    // if (!finalized)
-    MPI_Finalize();
 
+    // free all pointers 
     free(dims);
     free(coords); 
 }

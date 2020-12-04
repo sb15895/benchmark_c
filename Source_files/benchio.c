@@ -8,8 +8,8 @@
 
 main(int argc, char **argv) 
 {    
-  double l1, l2, l3, p1, p2, p3, N1, N2, N3, t0, t1, time, iorate, mibdata, mintime, maxiorate, avgtime, avgiorate;  
-  int i1, i2, i3, j1, j2, j3, ierr, rank, dblesize, iolayer, irep, size;
+  double l1, l2, l3, p1, p2, p3, t0, t1, time, iorate, mibdata, mintime, maxiorate, avgtime, avgiorate;  
+  int i1, i2, i3, j1, j2, j3, ierr, rank, dblesize, iolayer, irep, size, N1, N2, N3; 
   N1 = 256;
   N2 = 256;
   N3 = 256;
@@ -142,7 +142,7 @@ main(int argc, char **argv)
  
   // Loop to call serial write, mpiwrite, hdf5 write and adios write. 
 
-  for (iolayer = 2; iolayer < 3; iolayer++)
+  for (iolayer = 1; iolayer < 3; iolayer++)
   {
     // { //  Skip layer if support is not compiled in 
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
@@ -201,11 +201,13 @@ main(int argc, char **argv)
         } 
         break;
         case 1:
+          printf("cartcomm for MPI %d \n", cartcomm); 
           mpiiowrite(iodata, N1, N2, N3, cartcomm); 
           printf("MPI write completed\n\n"); 
         break;
         case 2:
-          hdf5write(filename, iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
+          printf("cartcomm for HDF5 %d \n", cartcomm); 
+          hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
           printf("HDF5 called \n"); 
         break;
             //   case 4:

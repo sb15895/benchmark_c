@@ -52,7 +52,7 @@ void mpiiowrite(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     MPI_Init(NULL, NULL);
     printf("MPI initialised \n");
     }
-
+    
     MPI_Comm_size(cartcomm, &nprocs);
     MPI_Comm_rank(cartcomm, &myrank);
     // printf("MPI rank %d MPI processor %d\n", myrank, nprocs);

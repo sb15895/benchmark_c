@@ -4,6 +4,9 @@ CC = mpicc
 # define compile time flags 
 CFLAGS = -I/opt/ohpc/pub/libs/intel/hdf5/1.10.4/include
 
+#object file directory
+ODIR = Object_files
+
 # define headerfiles
 DEPS = bench_headerfiles.h
 
@@ -16,13 +19,17 @@ INC = -I/opt/ohpc/pub/libs/intel/hdf5/1.10.4
 # define C source files 
 SRCS = benchio.c benchclock.c serial_write.c mpi_write.c hdf5_write.c 
 
-#define C object files, all .c files converted to .o files 
-OBJS = $(SRCS:.c=.o)
-
 #define executable file 
 MAIN = bench
 
 .PHONY: depend clean
+
+#define C object files, all .c files converted to .o files, define path substitution 
+_OBJS = $(SRCS:.c=.o)
+OBJS = $(patsubst %,$(ODIR)/%,$(_OBJS))
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
 
 $(MAIN): $(OBJS) 
 	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS) $(LDFLAGS) $(LIBS)
@@ -31,11 +38,10 @@ $(MAIN): $(OBJS)
 # it uses automatic variables $<: the name of the prerequisite of
 # the rule(a .c file) and $@: the name of the target of the rule (a .o file) 
 
-.c.o:
-	$(CC) $(CFLAGS) $(INCLUDES) -c $<  -o $@
+
 
 clean:
-	$(RM) *.o *~ $(MAIN)
+	rm -f $(ODIR)/*.o *.o *~ $(MAIN)
 
 depend: $(SRCS)
 	makedepend $(INCLUDES) $^

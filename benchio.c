@@ -6,9 +6,6 @@
 #define N 256 
 #define NDIM 3 
 
-// simulate contiguous memory in array form: (assuming N1, N2, N3 are same as N)
-// #define iodata[i][j][k] (IODATA[N*N*i + N*j + k])
-
 main(int argc, char **argv) 
 {    
   double l1, l2, l3, p1, p2, p3, N1, N2, N3, t0, t1, time, iorate, mibdata, mintime, maxiorate, avgtime, avgiorate;  
@@ -24,10 +21,6 @@ main(int argc, char **argv)
   char filename[100]; 
   char iolayername[numiolayer][100]; 
   char iostring[numiolayer][100];
-
-  //allocate memory for iodata 
-  // int* IODATA; 
-  // IODATA = (int*)malloc((N+1)*(N+1)*(N+1)*sizeof(int));
   double* iodata;
   iodata = (double*)malloc((N+1)*(N+1)*(N+1)*sizeof(double));
 
@@ -112,7 +105,6 @@ main(int argc, char **argv)
     {
       for(k = 0; k <= N3; k++)
       {
-            // *iodata[i][j][k] = -1; // initialise all values with -1 
             *(iodata + i*(int)(N2*N3) + j*(int)N3 + k) = -1; // initialise all values with -1 
       }
     }
@@ -120,7 +112,7 @@ main(int argc, char **argv)
 
 // iodata values filled in
 
-  for(i = 0; i <= N1; i++) {// n1 =256, n1+1 = 257
+  for(i = 0; i <= N1; i++) {
   
     for(j = 0; j <= N2; j++)
     {
@@ -137,9 +129,20 @@ main(int argc, char **argv)
   i = 100; j = 100; k = 100; 
   printf("iodata[100][100][100] after data entered %f \n", *(iodata + (int)(i*65536) + (int)(j*256) + k)); 
 
-  // iolayer for loop 
+  // Check for directory "benchio_files"
+  
+  int check; 
+  char* dirname = "benchio_files"; 
+  check = mkdir(dirname,0777); 
+  if (!check) 
+        printf("Directory created\n"); 
+  else { 
+        printf("Directory already present \n"); 
+    } 
+ 
+  // Loop to call serial write, mpiwrite, hdf5 write and adios write. 
 
-  for (iolayer = 0; iolayer < 2; iolayer++)
+  for (iolayer = 2; iolayer < 3; iolayer++)
   {
     // { //  Skip layer if support is not compiled in 
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
@@ -193,18 +196,18 @@ main(int argc, char **argv)
         case 0:
         if(rank == 0)
         {
-        serialwrite(iodata);
-        printf("Serial write completed\n\n"); 
+          serialwrite(iodata);
+          printf("Serial write completed\n\n"); 
         } 
         break;
         case 1:
-        mpiiowrite(iodata, N1, N2, N3, cartcomm); 
-        printf("MPI write completed\n\n"); 
-
+          mpiiowrite(iodata, N1, N2, N3, cartcomm); 
+          printf("MPI write completed\n\n"); 
         break;
-            //   case 3:
-            //   call hdf5write(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined?
-            //   break;
+        case 2:
+          hdf5write(filename, iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
+          printf("HDF5 called \n"); 
+        break;
             //   case 4:
             //  call netcdfwrite(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined? 
             //  break;
@@ -238,15 +241,13 @@ main(int argc, char **argv)
     printf("avgtime = %e, avgiorate = %e MiB/s \n", avgtime, avgiorate); 
     printf("Deleting: %s \n", filename);
     int del = remove(filename);
+    
     if (!del)
-      printf("The file is Deleted successfully \n");
+      printf("The file is deleted successfully \n");
     else
-      printf("the file is not Deleted \n");
-    printf("\n"); 
-    printf("--------");
-    printf("Finished");
-    printf("--------");    
-    printf("\n");  
+      printf("The file is not deleted \n");
+
+    printf("\n --------Finished-------- \n"); 
   }
 
   ierr = MPI_Finalize();

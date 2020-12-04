@@ -1,4 +1,5 @@
 # benchmark_c
-benchio code in c. 
-program writes in directory called benchio_files, if not already present it should be created in the benchmark_c folder. 
-serial_write writes data contained within file "iodata" to serial.dat. mpi_write writes data contained within file "iodata" to mpiio.dat
+benchio code in C. <br /> 
+The program writes in a directory called benchio_files which would be created by the benchio program after first checking for this directory.  <br />
+The source file contains all the C, headerfiles and the make file. The program creates the object files in a subdirectory named Object_files. <br /> 
+

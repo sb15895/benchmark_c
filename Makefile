@@ -2,13 +2,13 @@
 CC = mpicc
 
 # define compile time flags 
-CFLAGS = -I. 
+CFLAGS = -I/opt/ohpc/pub/libs/intel/hdf5/1.10.4/include
 
 # define headerfiles
 DEPS = bench_headerfiles.h
 
 # define library paths in addition to /usr/lib 
-LFLAGS = -L/opt/ohpc/pub/libs/intel/hdf5/1.10.4
+LDFLAGS = -L/opt/ohpc/pub/libs/intel/hdf5/1.10.4/lib -lhdf5_hl -lhdf5 -Wl,-rpath -Wl,/opt/ohpc/pub/libs/intel/hdf5/1.10.4/lib
 
 # define directories 
 INC = -I/opt/ohpc/pub/libs/intel/hdf5/1.10.4
@@ -25,7 +25,7 @@ MAIN = bench
 .PHONY: depend clean
 
 $(MAIN): $(OBJS) 
-	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS) $(LFLAGS) $(LIBS)
+	$(CC) $(CFLAGS) -o $(MAIN) $(OBJS) $(LDFLAGS) $(LIBS)
 
 # this is a suffix replacement rule for building .o's from .c's
 # it uses automatic variables $<: the name of the prerequisite of

@@ -3,6 +3,9 @@
 #include <stdlib.h> 
 #include "bench_headerfiles.h"
 #include <string.h> 
+#include <hdf5.h>
+#include <H5FDmpio.h> 
+#include <hdf5_hl.h> 
 #define N 256 
 #define NDIM 3 
 

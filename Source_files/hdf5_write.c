@@ -5,6 +5,7 @@
 #include <string.h>
 #include <memory.h>
 #include <hdf5.h>
+#include <H5FDmpio.h> 
 #define N 256 
 #define NDIM 3 
 

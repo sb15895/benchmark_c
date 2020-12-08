@@ -20,7 +20,7 @@ double benchtick(int firstcall)
 }
 
 
-double benchtime(int firstcall)
+double benchtime()
 
 {   
     struct timeval current_time;

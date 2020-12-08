@@ -132,7 +132,7 @@ main(int argc, char **argv)
   // Check for directory "benchio_files"
   
   int check; 
-  char* dirname = "benchio_files"; 
+  char* dirname = "benchmark_c/benchio_files"; 
   check = mkdir(dirname,0777); 
   if (!check) 
         printf("Directory created\n"); 
@@ -142,7 +142,7 @@ main(int argc, char **argv)
  
   // Loop to call serial write, mpiwrite, hdf5 write and adios write. 
 
-  for (iolayer = 1; iolayer < 3; iolayer++)
+  for (iolayer = 2; iolayer < 3; iolayer++)
   {
     // { //  Skip layer if support is not compiled in 
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
@@ -201,12 +201,12 @@ main(int argc, char **argv)
         } 
         break;
         case 1:
-          printf("cartcomm for MPI %d \n", cartcomm); 
+          // printf("cartcomm for MPI %d \n", cartcomm); 
           mpiiowrite(iodata, N1, N2, N3, cartcomm); 
           printf("MPI write completed\n\n"); 
         break;
         case 2:
-          printf("cartcomm for HDF5 %d \n", cartcomm); 
+          // printf("cartcomm for HDF5 %d \n", cartcomm); 
           hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
           printf("HDF5 called \n"); 
         break;

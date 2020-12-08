@@ -211,7 +211,7 @@ main(int argc, char **argv)
         case 2:
           // printf("cartcomm for HDF5 %d \n", cartcomm); 
           hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
-          printf("HDF5 called \n"); 
+          printf("HDF5 write completed \n\n");           
         break;
             //   case 4:
             //  call netcdfwrite(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined? 

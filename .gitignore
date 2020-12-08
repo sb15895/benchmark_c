@@ -1,3 +1,4 @@
-Source_files/Object_files/
-Source_files/benchio_files/
+Source_files/Object_files/*.o
+Source_files/benchio_files/*.dat
 Source_files/bench
+Source_files/testhdf5.c

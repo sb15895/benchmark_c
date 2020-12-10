@@ -84,86 +84,50 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     
     // setup file access property list with parallel IO access
     plist_id = H5Pcreate(H5P_FILE_ACCESS); 
-
-    if(plist_id == -1)
-    {
-        printf("unsuccessful");
-        exit(0); 
-    }
-    
     H5Pset_fapl_mpio(plist_id, cartcomm, MPI_INFO_NULL);
     printf("h5pset fapl mpio \n"); 
 
-    if(ierr<0)
-    {
-        printf("unsuccessful");
-        exit(0); 
-    }
-
-    // create file hdf5.dat collectively 
-    plist_id = H5Fcreate ("hdf5.dat", H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
-    status = H5Fclose (plist_id);    
+    // create file hdf5.dat collectively
+    // plist_id is fapl_id, access property list id 
+    // file_id is file identifier 
+    file_id = H5Fcreate ("hdf5.dat", H5F_ACC_TRUNC, H5P_DEFAULT, plist_id);
+    H5Pclose (plist_id);    
     printf("file id \n"); 
 
     // create data space for dataset 
-    // hid_t H5Screate_simple( int rank, const hsize_t * current_dims, const hsize_t * maximum_dims ); // creates a new simple dataspace and opens it for access
-    H5Screate_simple(ndim, dimsf, NULL); // MAX dims???
+    filespace = H5Screate_simple(ndim, dimsf, NULL); 
     printf("H5Screate_simple \n"); 
 
-    dset_id = H5Pcreate(H5P_DATASET_CREATE); 
+    // dset_id = H5Pcreate(H5P_FILE_ACCESS); 
+    // printf("Dataset ID \n"); 
 
     // create dataset with default properties 
-    // H5Dcreate( hid_t loc_id, const char *name, hid_t type_id, hid_t space_id, hid_t dcpl_id )
-    // hid_t data_def = H5Dcreate( file_id, dsetname, H5T_NATIVE_DOUBLE, filespace, dset_id );   
-    H5Dcreate1(file_id, dsetname, H5T_NATIVE_DOUBLE, filespace, dset_id); 
+    dset_id = H5Dcreate(file_id, dsetname, H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT); 
     printf("H5Dcreate dset_id \n"); 
     H5Sclose(filespace); 
 
     // each process defines dataset in memory and writes to hyperslab in the file. 
-    H5Screate_simple(ndim, count, maxdims); 
-    
-    //   ! Select hyperslab in the file.
-    //   CALL h5dget_space_f(dset_id, filespace, ierr)
-    H5Dget_space(dset_id); 
-    
-    //   CALL h5sselect_hyperslab_f (filespace, H5S_SELECT_SET_F, offset, count, ierr)
-    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, block, count, NULL); 
+    memspace = H5Screate_simple(ndim, count, NULL); // memspace is dataspace identifier
+    printf ("dataspace simple \n");
+
+    //   Select hyperslab in the file.
+    filespace = H5Dget_space(dset_id); 
+    printf ("dget space \n");
+    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL); 
     printf("Hyperslab \n"); 
           
-    //   ! Create property list for collective dataset write
-    //   CALL h5pcreate_f(H5P_DATASET_XFER_F, plist_id, ierr) 
+    //  Create property list for collective dataset write
     plist_id = H5Pcreate(H5P_DATASET_XFER); // sets data transfer mode.
-
-    //   CALL h5pset_dxpl_mpio_f(plist_id, H5FD_MPIO_COLLECTIVE_F, ierr)
     H5Pset_dxpl_mpio(plist_id, H5FD_MPIO_COLLECTIVE); // sets data transfer mode.
     printf("H5Pset dxpl mpi \n"); 
 
     //   Write the dataset collectively. 
-
-    // herr_t H5Dwrite( hid_t dataset_id, hid_t mem_type_id, hid_t mem_space_id, hid_t file_space_id, hid_t xfer_plist_id, const void * buf )
-    H5Dwrite(dset_id, H5T_NATIVE_DOUBLE, memspace, filespace, plist_id, iodata);
+    status = H5Dwrite (dset_id, H5T_NATIVE_DOUBLE, memspace, filespace, plist_id, iodata);
     printf("H5D write \n"); 
-    // ! Write the dataset independently. Comment out the collective
-    // ! and use the following call to investigate non-collective performance.
-    // !    CALL h5dwrite_f(dset_id, H5T_NATIVE_DOUBLE, data, arraygsize, ierr, &
-    // !                     file_space_id = filespace, mem_space_id = memspace)    
-    //   Close dataspaces.
-    //   CALL h5sclose_f(filespace, ierr)
-
-    H5Sclose(filespace); 
-    //   CALL h5sclose_f(memspace, ierr)
-    H5Sclose(memspace); 
-    
-    //   Close the dataset and property list.
-    H5Dclose(dset_id); 
-    //   CALL h5dclose_f(dset_id, ierr)
-    H5Dclose(plist_id); 
-    //   CALL h5pclose_f(plist_id, ierr)
-    
-    //   ! Close the file.
-    //   CALL h5fclose_f(file_id, ierr)
-    H5Fclose(file_id);
-    
-    //   ! Close FORTRAN predefined datatypes.
-    //   CALL h5close_f(ierr)
+    // status = H5Dclose (dset_id);    
+    // status = H5Pclose (plist_id);
+    // status = H5Sclose (filespace);
+    // status = H5Sclose (memspace);
+    // printf("File close \n"); 
+    // status = H5Fclose (file_id);
 }

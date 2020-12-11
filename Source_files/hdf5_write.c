@@ -19,6 +19,7 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     // status = H5Fclose (file_id);
 
     // *******************code test end 
+    
     int ndim = 3; 
     // char* filename; 
     //  integer(hsize_t), dimension(ndim) :: dimsf  ! dataset dimensions.  
@@ -28,6 +29,7 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     int i, ierr, rank, size, periods, initialized; 
     int arraygsize[NDIM], arraystart[NDIM]; 
     int ncid, varid, oldmode, x_dimid, y_dimid, z_dimid, dimids[NDIM]; 
+    char wdata2[3][50] = {"The quick brown", "fox jumps over ", "the 5 lazy dogs"}; 
 
     // Dynamically allocate memory using malloc() 
     int* dims;
@@ -44,7 +46,7 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     hsize_t count[NDIM]; 
     hssize_t offset[NDIM]; 
     hsize_t dimsf[NDIM]; 
-    hsize_t maxdims[10]; // randomly selected maximum dimension number. Not sure. 
+    hsize_t maxdims[NDIM]; // to specify maximum dimensions. 
     hsize_t block[NDIM]; // block array determines size of element blcok selected from dataspace. 
     herr_t status;
 
@@ -69,6 +71,8 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
 
     // copy arraygsize into dimsf 
     memcpy(dimsf, arraygsize, sizeof(int)*ndim);
+
+    printf("check on dimsf \n"); 
 
     // initialise count and offset arrays 
     count[0] = n1; 
@@ -95,11 +99,13 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     printf("file id \n"); 
 
     // create data space for dataset 
+    for (i = 0; i<ndim; i++)
+    {
+        dimsf[i] = count[i]; 
+    } 
+
     filespace = H5Screate_simple(ndim, dimsf, NULL); 
     printf("H5Screate_simple \n"); 
-
-    // dset_id = H5Pcreate(H5P_FILE_ACCESS); 
-    // printf("Dataset ID \n"); 
 
     // create dataset with default properties 
     dset_id = H5Dcreate(file_id, dsetname, H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT); 
@@ -113,7 +119,7 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     //   Select hyperslab in the file.
     filespace = H5Dget_space(dset_id); 
     printf ("dget space \n");
-    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL); 
+    H5Sselect_hyperslab(filespace, H5S_SELECT_SET, offset, NULL, count, NULL);      
     printf("Hyperslab \n"); 
           
     //  Create property list for collective dataset write
@@ -124,10 +130,22 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     //   Write the dataset collectively. 
     status = H5Dwrite (dset_id, H5T_NATIVE_DOUBLE, memspace, filespace, plist_id, iodata);
     printf("H5D write \n"); 
-    // status = H5Dclose (dset_id);    
-    // status = H5Pclose (plist_id);
-    // status = H5Sclose (filespace);
-    // status = H5Sclose (memspace);
-    // printf("File close \n"); 
-    // status = H5Fclose (file_id);
+
+    // // Free resources
+
+    // close dataspaces 
+    status = H5Sclose (memspace);
+    status = H5Sclose (filespace);
+
+    // close dataset and property list  
+    status = H5Dclose (dset_id);    
+    status = H5Pclose (plist_id); 
+
+    // close file 
+    printf("File close \n"); 
+    status = H5Fclose (file_id);
+
+    // free pointers
+    free(dims);
+    free(coords); 
 }

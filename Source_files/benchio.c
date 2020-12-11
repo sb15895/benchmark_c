@@ -188,7 +188,7 @@ main(int argc, char **argv)
     }
     for (irep = 0; irep <numrep; irep++)
     {
-      MPI_Barrier(MPI_COMM_WORLD);  
+      // MPI_Barrier(cartcomm);  
       if (rank == 0)
       { 
               t0 = benchtime(firstcall);   
@@ -210,8 +210,9 @@ main(int argc, char **argv)
         break;
         case 2:
           // printf("cartcomm for HDF5 %d \n", cartcomm); 
+          MPI_Barrier( cartcomm);
           hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
-          printf("HDF5 write completed \n\n");           
+          printf("HDF5 write completed \n\n");    
         break;
             //   case 4:
             //  call netcdfwrite(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined? 
@@ -219,8 +220,8 @@ main(int argc, char **argv)
         default:
         printf("Illegal value of iolayer = %d \n", iolayer);     
       }
-
-      MPI_Barrier(MPI_COMM_WORLD); 
+      
+      // MPI_Barrier(cartcomm); 
       if(rank == 0)
       {
         double t1 = benchtime(firstcall); 

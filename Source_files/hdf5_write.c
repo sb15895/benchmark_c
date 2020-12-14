@@ -55,6 +55,7 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     MPI_Comm_size(cartcomm, &size);
     MPI_Comm_rank(cartcomm, &rank);
     MPI_Cart_get(cartcomm, ndim, dims, &periods, coords); 
+    MPI_Info info  = MPI_INFO_NULL; 
     // MPI_Info info; 
 
     int arraysize[] = {n1+2, n2+2, n3+2}; 
@@ -88,7 +89,9 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     
     // setup file access property list with parallel IO access
     plist_id = H5Pcreate(H5P_FILE_ACCESS); 
-    H5Pset_fapl_mpio(plist_id, cartcomm, MPI_INFO_NULL);
+    // H5Pset_dxpl_mpio (plist_id, H5FD_MPIO_COLLECTIVE);
+    // H5Pset_fapl_mpio(plist_id, cartcomm, MPI_INFO_NULL);
+    H5Pset_fapl_mpio(plist_id, cartcomm, info);
     printf("h5pset fapl mpio \n"); 
 
     // create file hdf5.dat collectively
@@ -110,10 +113,10 @@ void hdf5write(double* iodata, int n1, int n2, int n3, MPI_Comm cartcomm)
     // create dataset with default properties 
     dset_id = H5Dcreate(file_id, dsetname, H5T_NATIVE_DOUBLE, filespace, H5P_DEFAULT, H5P_DEFAULT, H5P_DEFAULT); 
     printf("H5Dcreate dset_id \n"); 
-    H5Sclose(filespace); 
+    H5Sclose(filespace);
 
     // each process defines dataset in memory and writes to hyperslab in the file. 
-    memspace = H5Screate_simple(ndim, count, NULL); // memspace is dataspace identifier
+    memspace = H5Screate_simple(ndim, count, NULL); // whats the difference between memspace and filespace??
     printf ("dataspace simple \n");
 
     //   Select hyperslab in the file.

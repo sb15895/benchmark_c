@@ -8,22 +8,22 @@
 #include <hdf5_hl.h> 
 #define N 256 
 #define NDIM 3 
+#define NUMIOLAYER 5
 
 main(int argc, char **argv) 
 {    
   double l1, l2, l3, p1, p2, p3, t0, t1, time, iorate, mibdata, mintime, maxiorate, avgtime, avgiorate;  
   int i1, i2, i3, j1, j2, j3, ierr, rank, dblesize, iolayer, irep, size, N1, N2, N3; 
-  N1 = 256;
-  N2 = 256;
+  N1 = 256; // size of dimensions  
+  N2 = 256; 
   N3 = 256;
-  int firstcall = 1; // true value 
-  int numiolayer = 4; // can be constants 
+  // int firstcall = 1; // true value 
   int maxlen = 64; 
-  int numrep = 1; //should be 10 
+  int numrep = 1; //should be 10 ? 
   char filedir[100]; 
   char filename[100]; 
-  char iolayername[numiolayer][100]; 
-  char iostring[numiolayer][100];
+  char iolayername[NUMIOLAYER][100]; 
+  char iostring[NUMIOLAYER][100];
   double* iodata;
   iodata = (double*)malloc((N+1)*(N+1)*(N+1)*sizeof(double));
 
@@ -46,12 +46,12 @@ main(int argc, char **argv)
   strcpy(iostring[0], "Serial");
   strcpy(iostring[1], "MPI-IO");
   strcpy(iostring[2], "HDF5");
-  strcpy(iostring[3], "NetCDF");
+  strcpy(iostring[3], "PHDF5");
 
   strcpy(iolayername[0], "serial.dat");
   strcpy(iolayername[1], "mpiio.dat");
   strcpy(iolayername[2], "hdf5.dat");
-  strcpy(iolayername[3], "netcdf.dat");
+  strcpy(iolayername[3], "phdf5.dat");
 
   // MPI initialisation, MPI Comm, rank and process number
   ierr = MPI_Init(&argc, &argv);
@@ -130,7 +130,7 @@ main(int argc, char **argv)
     }
   }  
   i = 100; j = 100; k = 100; 
-  printf("iodata[100][100][100] after data entered %f \n", *(iodata + (int)(i*65536) + (int)(j*256) + k)); 
+  // printf("iodata[100][100][100] after data entered %f \n", *(iodata + (int)(i*65536) + (int)(j*256) + k)); 
 
   // Check for directory "benchio_files"
   
@@ -145,8 +145,11 @@ main(int argc, char **argv)
  
   // Loop to call serial write, mpiwrite, hdf5 write and adios write. 
 
-  for (iolayer = 2; iolayer < 3; iolayer++)
-  {
+  for (iolayer = 0; iolayer < 4; iolayer++)
+  { 
+
+    // HAVE TO COMPLETE PROCESSOR PRE DEFINITION CHECKS. 
+
     // { //  Skip layer if support is not compiled in 
     //   // Expects iolayers in order: serial, MPI-IO, HDF5, NetCDF
     //   #ifndef WITH_SERIAL
@@ -209,10 +212,14 @@ main(int argc, char **argv)
           printf("MPI write completed\n\n"); 
         break;
         case 2:
-          // printf("cartcomm for HDF5 %d \n", cartcomm); 
-          MPI_Barrier( cartcomm);
+        if (rank == 0)
+        {
           hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
-          printf("HDF5 write completed \n\n");    
+          printf("Serial HDF5 write completed \n\n");   
+        }
+        case 3: 
+          phdf5write(iodata, N1, N2, N3, cartcomm);
+          printf("Parallel HDF5 write completed \n\n");       
         break;
             //   case 4:
             //  call netcdfwrite(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined? 

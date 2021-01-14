@@ -17,7 +17,7 @@ main(int argc, char **argv)
   N1 = 256; // size of dimensions  
   N2 = 256; 
   N3 = 256;
-  // int firstcall = 1; // true value 
+  int firstcall = 1; // true value 
   int maxlen = 64; 
   int numrep = 1; //should be 10 ? 
   char filedir[100]; 
@@ -145,7 +145,7 @@ main(int argc, char **argv)
  
   // Loop to call serial write, mpiwrite, hdf5 write and adios write. 
 
-  for (iolayer = 0; iolayer < 4; iolayer++)
+  for (iolayer = 4; iolayer < 5; iolayer++)
   { 
 
     // HAVE TO COMPLETE PROCESSOR PRE DEFINITION CHECKS. 
@@ -214,16 +214,19 @@ main(int argc, char **argv)
         case 2:
         if (rank == 0)
         {
-          hdf5write(iodata, N1, N2, N3, cartcomm); // function calls need to be defined?
+          hdf5write(iodata, N1, N2, N3, cartcomm); 
           printf("Serial HDF5 write completed \n\n");   
         }
         case 3: 
           phdf5write(iodata, N1, N2, N3, cartcomm);
           printf("Parallel HDF5 write completed \n\n");       
         break;
-            //   case 4:
-            //  call netcdfwrite(filename, iodata, n1, n2, n3, cartcomm); // function calls need to be defined? 
-            //  break;
+
+        case 4:
+          adioswrite(iodata, N1, N2, N3, cartcomm); 
+          printf("ADIOS write completed \n\n"); 
+        break; 
+
         default:
         printf("Illegal value of iolayer = %d \n", iolayer);     
       }
